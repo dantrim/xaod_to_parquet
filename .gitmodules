@@ -1,0 +1,3 @@
+[submodule "src/parquet-writer"]
+	path = src/parquet-writer
+	url = https://github.com/dantrim/parquet-writer.git

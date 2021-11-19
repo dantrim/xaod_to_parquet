@@ -1,0 +1,7 @@
+{
+    "fields": [
+        {"name": "foo", "type": "float"},
+        {"name": "bar", "type": "uint32"},
+        {"name": "baz", "type": "list1d", "contains": {"type": "float"}}
+    ]
+}
