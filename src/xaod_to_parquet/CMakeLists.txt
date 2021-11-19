@@ -1,5 +1,5 @@
 # the name of this project
-set(ATLAS_PROJECT_NAME xaod_to_parqet)
+set(ATLAS_PROJECT_NAME xaod_to_parquet)
 atlas_subdir(${ATLAS_PROJECT_NAME})
 
 set(extra_deps)
@@ -18,6 +18,11 @@ atlas_depends_on_subdirs(
     Event/xAOD/xAODMetaData
     Tools/PathResolver
     Event/xAOD/xAODJet
+    Event/xAOD/xAODPFlow
+    Reconstruction/Jet/JetJvtEfficiency
+    Reconstruction/Jet/JetMomentTools
+    Reconstruction/Jet/JetSubStructureUtils
+    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
     Event/xAOD/xAODEgamma
     Event/xAOD/xAODMuon
     Event/xAOD/xAODMissingET
@@ -56,6 +61,9 @@ atlas_add_library(x2p-analysis
     xAODCutFlow
     xAODRootAccess
     xAODJet
+    xAODPFlow
+    JetJvtEfficiencyLib
+    JetMomentToolsLib
     TrigDecisionToolLib
     TrigConfxAODLib
     PathResolver

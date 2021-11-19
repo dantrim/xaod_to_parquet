@@ -4,6 +4,7 @@
 // std/stl
 #include <vector>
 #include <memory>
+#include <string>
 
 // xAOD
 #include "xAODRootAccess/tools/ReturnCheck.h"
@@ -20,6 +21,9 @@ namespace xAOD {
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
+
+#include "JetMomentTools/JetVertexTaggerTool.h"
+
 
 // ASG
 #include "AsgTools/ToolHandle.h"
@@ -61,6 +65,8 @@ class AnalysisLooper : public TSelector
         TDirectory* get_directory_from_chain(TTree* tree);
 
         bool initialize_susytools();
+        std::vector<std::string> get_lumicalc_files();
+        std::vector<std::string> get_prw_files();
         bool load_objects();
 
 

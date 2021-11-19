@@ -200,11 +200,166 @@ bool AnalysisLooper::initialize_susytools() {
     RETURN_CHECK("X2P", _susytools->setProperty("DataSource", datasource));
 
     // add prw configs and lumicalc files
+    std::vector<std::string> lumicalc_files = get_lumicalc_files();
+    std::vector<std::string> prw_files = get_prw_files();
+
+	std::cout << "=============================================================" << std::endl;
+	std::cout << __x2pfunc__ << "Loading lumicalc files into SUSYTools:" << std::endl;
+	for(const auto& f : lumicalc_files) {
+		std::cout << __x2pfunc__ << " > " << f << std::endl;
+	}
+	std::cout << __x2pfunc__ << "Loading PRW config files into SUSYTools:" << std::endl;
+	for(const auto& f : prw_files) {
+		std::cout << __x2pfunc__ << " > " << f << std::endl;
+	}
+	std::cout << "=============================================================" << std::endl;
+	RETURN_CHECK("X2P", _susytools->setProperty("PRWLumiCalcFiles", lumicalc_files));
+	RETURN_CHECK("X2P", _susytools->setProperty("PRWConfigFiles", prw_files));
+
+	if(_susytools->initialize() != StatusCode::SUCCESS) {
+		std::cout << __x2pfunc__ << "Cannot initialize SUSYTools" << std::endl;
+		return false;
+	}
     return true;
 }
 
 std::vector<std::string> AnalysisLooper::get_lumicalc_files() {
     std::vector<std::string> lumicalc_files;
+    bool lumicalc_ok{true};
+
+    // 2015
+    std::string lumicalc_2015_path{"GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"};
+    std::string lumicalc_2015 = PathResolverFindCalibFile(lumicalc_2015_path);
+    if(lumicalc_2015.empty()) {
+        std::cout << __x2pfunc__ << "ERROR PathResolver unable to find 2015 lumicalc file (=" << lumicalc_2015_path << ")" << std::endl;
+        lumicalc_ok = false;
+    }
+    lumicalc_files.push_back(lumicalc_2015);
+
+    // 2016
+    std::string lumicalc_2016_path{"GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root"};
+    std::string lumicalc_2016 = PathResolverFindCalibFile(lumicalc_2016_path);
+    if(lumicalc_2016.empty()) {
+        std::cout << __x2pfunc__ << "ERROR PathResolver unable to find 2016 lumicalc file (=" << lumicalc_2016_path << ")" << std::endl;
+        lumicalc_ok = false;
+    }
+    lumicalc_files.push_back(lumicalc_2016);
+
+    // 2017
+    std::string lumicalc_2017_path{"GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root"};
+    std::string lumicalc_2017 = PathResolverFindCalibFile(lumicalc_2017_path);
+    if(lumicalc_2017.empty()) {
+        std::cout << __x2pfunc__ << "ERROR PathResolver unable to find 2017 lumicalc file (=" << lumicalc_2017_path << ")" << std::endl;
+        lumicalc_ok = false;
+    }
+    lumicalc_files.push_back(lumicalc_2017);
+
+    // 2018
+    std::string lumicalc_2018_path{"GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"};
+    std::string lumicalc_2018 = PathResolverFindCalibFile(lumicalc_2018_path);
+    if(lumicalc_2018.empty()) {
+        std::cout << __x2pfunc__ << "ERROR PathResolver unable to find 2018 lumicalc file (=" << lumicalc_2018_path << ")" << std::endl;
+        lumicalc_ok = false;
+    }
+    lumicalc_files.push_back(lumicalc_2018);
+
+    if(!lumicalc_ok) {
+        throw std::runtime_error("Failed to retrieve ilumicalc files");
+    }
+
+    std::cout << __x2pfunc__ << "Loading " << lumicalc_files.size() << " lumicalc files:" << std::endl;
+    for(const auto& f : lumicalc_files) {
+        std::cout << __x2pfunc__ << " > " << f << std::endl;
+    }
+    return lumicalc_files;
+}
+
+std::vector<std::string> AnalysisLooper::get_prw_files() {
+    const xAOD::EventInfo* ei{nullptr};
+    if(!_tevent->retrieve(ei, "EventInfo").isSuccess()) {
+		throw std::runtime_error("Failed to retrieve EventInfo");
+    }
+
+    bool file_ok{true};
+    std::vector<std::string> prw_out;
+    int dsid = ei->mcChannelNumber();
+    std::string sim_type = (_is_af2 ? "AFII" : "FS");
+    
+    std::stringstream dsid_s;
+    dsid_s << dsid;
+    std::string first3_of_dsid = dsid_s.str();
+    first3_of_dsid = first3_of_dsid.substr(0,3);
+    std::stringstream prw_dir;
+    prw_dir << "dev/PileupReweighting/share/";
+    prw_dir << "DSID" << first3_of_dsid << "xxx/";
+    
+    std::string prw_config = prw_dir.str();
+    
+    //std::string prw_config = PathResolverFindCalibDirectory(prw_config_loc);
+    //if(prw_config == "")
+    //{
+    //    std::cout << __x2pfunc__ << "    WARNING Could not locate "
+    //        "group area (=" << prw_config_loc << "), will try the older one: ";
+    //    prw_config_loc = "dev/PileupReweighting/mc16_13TeV/";
+    //    std::cout << prw_config_loc << std::endl;
+    //
+    //    prw_config = PathResolverFindCalibDirectory(prw_config_loc);
+    //    if(prw_config == "")
+    //    {
+    //        std::cout << __x2pfunc__ << "    ERROR Could not locate "
+    //            "alternative group area (=" << prw_config_loc << "), failed to find"
+    //            " PRW config files for sample!" << std::endl;
+    //        exit(1);
+    //    }
+    //}
+    
+    std::string prw_config_a = prw_config;
+    std::string prw_config_d = prw_config;
+    std::string prw_config_e = prw_config;
+    
+    prw_config_a += "pileup_mc16a_dsid" + std::to_string(dsid) + "_" + sim_type + ".root";
+    prw_config_d += "pileup_mc16d_dsid" + std::to_string(dsid) + "_" + sim_type + ".root";
+    prw_config_e += "pileup_mc16e_dsid" + std::to_string(dsid) + "_" + sim_type + ".root";
+    
+    std::cout << "================================================" << std::endl;
+    std::cout << __x2pfunc__ << "PRW CONFIG directory : " << prw_config << std::endl;
+    
+    //TFile test(prw_config_a.data(), "read");
+    //if(test.IsZombie()) {
+    //    std::cout << __x2pfunc__ << "    ERROR Unable to open the mc16a PRW config file (=" << prw_config_a << ")" << std::endl;
+    //    file_ok = false;
+    //}
+    //else {
+    //    std::cout << __x2pfunc__ <<  "  >> File opened OK (" << prw_config_a << ")" << std::endl;
+    //}
+    //
+    //TFile test2(prw_config_d.data(), "read");
+    //if(test2.IsZombie()) {
+    //    std::cout << __x2pfunc__ << "    ERROR Unable to open the mc16d PRW config file (=" << prw_config_d << ")" << std::endl;
+    //    file_ok = false;
+    //}
+    //else {
+    //    std::cout << __x2pfunc__ << "  >> File opened OK (" << prw_config_d << ")" << std::endl;
+    //}
+    //
+    //TFile test3(prw_config_e.data(), "read");
+    //if(test3.IsZombie()) {
+    //    std::cout << __x2pfunc__ << "    ERROR Unable to open the mc16e PRW config file (=" << prw_config_e << ")" << std::endl;
+    //    file_ok = false;
+    //}
+    //else {
+    //    std::cout << __x2pfunc__ << "  >> File opened OK (" << prw_config_e << ")" << std::endl;
+    //}
+    //std::cout << "================================================" << std::endl;
+    //
+    //if(!file_ok) exit(1);
+    
+    prw_out.push_back(prw_config_a);
+    prw_out.push_back(prw_config_d);
+    prw_out.push_back(prw_config_e);
+
+    return prw_out;
+
 }
 
 void AnalysisLooper::Begin(TTree* tree) {
