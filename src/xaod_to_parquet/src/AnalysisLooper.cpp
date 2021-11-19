@@ -198,6 +198,13 @@ bool AnalysisLooper::initialize_susytools() {
     _susytools->msg().setLevel(MSG::DEBUG);
     ST::ISUSYObjDef_xAODTool::DataSource datasource = _is_af2 ? ST::ISUSYObjDef_xAODTool::AtlfastII : ST::ISUSYObjDef_xAODTool::FullSim;
     RETURN_CHECK("X2P", _susytools->setProperty("DataSource", datasource));
+
+    // add prw configs and lumicalc files
+    return true;
+}
+
+std::vector<std::string> AnalysisLooper::get_lumicalc_files() {
+    std::vector<std::string> lumicalc_files;
 }
 
 void AnalysisLooper::Begin(TTree* tree) {
