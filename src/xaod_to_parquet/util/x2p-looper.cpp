@@ -10,6 +10,7 @@
 
 // xAOD
 #include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/LoadDictionaries.h"
 
 int main(int argc, char* argv[]) {
 
@@ -25,6 +26,7 @@ int main(int argc, char* argv[]) {
 
     // initialize the xAOD environment
     xAOD::Init("X2P");
+    xAOD::LoadDictionaries();
     //std::unique_ptr<TChain> chain = std::make_unique<TChain>("CollectionTree");
     TChain* chain = new TChain("CollectionTree");
     int err = ChainHelper::addInput(chain, input_filepath, true);
